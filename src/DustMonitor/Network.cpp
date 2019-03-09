@@ -1,16 +1,9 @@
-#include "Arduino.h"
+#include <Arduino.h>
+#include <WiFi.h>
+#include <Time.h>
 
-#ifndef LED_BUILTIN
-#define LED_BUILTIN 25
-#endif
-
-#if CONFIG_FREERTOS_UNICORE
-#define ARDUINO_RUNNING_CORE 0
-#else
-#define ARDUINO_RUNNING_CORE 1
-#endif
-
-
+char* ssid     = "flyfly";
+char* password = "flyuntildie";
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
@@ -19,28 +12,48 @@ void TaskNetwork(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
 
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
-    
-  If you want to know what pin the on-board LED is connected to on your ESP32 model, check
-  the Technical Specs of your board.
-*/
 
-  // initialize digital LED_BUILTIN on pin 13 as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
 
   for (;;) // A Task shall never return or exit.
   {
-    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
     vTaskDelay(900);  // one tick delay (15ms) in between reads for stability
   }
 }
 
+
+
 // the setup function runs once when you press reset or power the board
 void NetworkSetup() {
+    long timezone = 7; 
+    byte daysavetime = 1;
+
+    Serial.begin(115200);
+    // We start by connecting to a WiFi network
+    Serial.println();
+    Serial.println();
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
+
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+        delay(500);
+        Serial.print(".");
+    }
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    Serial.println(WiFi.localIP());
+    Serial.println("Contacting Time Server");
+    
+    configTime(3600*timezone, daysavetime*3600, "time.nist.gov", "0.pool.ntp.org", "1.pool.ntp.org");
+    struct tm tmstruct ;
+    delay(2000);
+    tmstruct.tm_year = 0;
+    getLocalTime(&tmstruct, 5000);
+    Serial.printf("\nNow is : %d-%02d-%02d %02d:%02d:%02d\n",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday,tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
+    Serial.println("");
+ 
+  
 
     xTaskCreate(
     TaskNetwork
@@ -51,17 +64,4 @@ void NetworkSetup() {
     ,  NULL );
     
 
-  
-  // Now set up two tasks to run independently.
-/*  
-  xTaskCreatePinnedToCore(
-    TaskNetwork
-    ,  "TaskNetwork"   // A name just for humans
-    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
-    ,  NULL
-    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL 
-    ,  ARDUINO_RUNNING_CORE);
-*/
-  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
 }
