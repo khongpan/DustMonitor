@@ -1,21 +1,21 @@
 #include "Arduino.h"
+#include "hpma115S0.h"
+HardwareSerial hpmaSerial(1);
+HPMA115S0 hpma115S0(hpmaSerial);
 
-#ifndef LED_BUILTIN
-#define LED_BUILTIN 25
-#endif
 
 #if CONFIG_FREERTOS_UNICORE
 #define ARDUINO_RUNNING_CORE 0
 #else
 #define ARDUINO_RUNNING_CORE 1
 #endif
-
+unsigned int pm2_5, pm10;
 
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/
 
-void TaskBlink(void *pvParameters)  // This is a task.
+void TaskDustSensor(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
 
@@ -32,20 +32,27 @@ void TaskBlink(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
-    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    vTaskDelay(900);  // one tick delay (15ms) in between reads for stability
+    hpma115S0.StartParticleMeasurement();
+    vTaskDelay(15000);
+    if (hpma115S0.ReadParticleMeasurement(&pm2_5, &pm10)) {
+        Serial.print("PM 2.5:\t" + String(pm2_5) + " ug/m3\t" );
+        Serial.println("\tPM 10:\t" + String(pm10) + " ug/m3" );
+    hpma115S0.StopParticleMeasurement();
+    vTaskDelay(45000);  
+  }
   }
 }
+void DustSensorRead(int *PM2_5, int *PM10){
+  *PM2_5 = pm2_5;
+  *PM10 = pm10;
+}
 
-// the setup function runs once when you press reset or power the board
-void BlinkSetup() {
-  
+void DustSensorSetup() {
+  hpmaSerial.begin(9600,SERIAL_8N1,12,13);
   // Now set up two tasks to run independently.
   xTaskCreatePinnedToCore(
-    TaskBlink
-    ,  "TaskBlink"   // A name just for humans
+    TaskDustSensor
+    ,  "TaskDustSensor"   // A name just for humans
     ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
     ,  NULL
     ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
