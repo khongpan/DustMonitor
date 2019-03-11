@@ -58,7 +58,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         vTaskDelay(30000);  // one tick delay (15ms) in between reads for stability
         }
         else {
-       Heltec.display->display();
+       Heltec.display->clear();
         }
   }
 }
