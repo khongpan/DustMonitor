@@ -33,7 +33,34 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
-     buttonState = digitalRead(buttonPin);
+     
+  }
+}
+
+// the setup function runs once when you press reset or power the board
+void DisplaySetup() {
+   pinMode(buttonPin, INPUT);
+  Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
+  Heltec.display->flipScreenVertically();
+  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
+  Heltec.display->setFont(ArialMT_Plain_16);
+  Heltec.display->clear();
+  Heltec.display->drawString(0, 0, "Waiting for \nconnection...");
+  Heltec.display->display();
+  // Now set up two tasks to run independently.
+  xTaskCreatePinnedToCore(
+    TaskDisplay
+    ,  "TaskDisplay"   // A name just for humans
+    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  NULL
+    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  NULL 
+    ,  ARDUINO_RUNNING_CORE);
+
+  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
+}
+void Display(){
+buttonState = digitalRead(buttonPin);
         if (buttonState == LOW) {
         
         Heltec.display->clear();
@@ -60,28 +87,4 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         else {
        Heltec.display->clear();
         }
-  }
-}
-
-// the setup function runs once when you press reset or power the board
-void DisplaySetup() {
-  pinMode(buttonPin, INPUT);
-  Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
-  Heltec.display->flipScreenVertically();
-  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
-  Heltec.display->setFont(ArialMT_Plain_16);
-  Heltec.display->clear();
-  Heltec.display->drawString(0, 0, "Waiting for \nconnection...");
-  Heltec.display->display();
-  // Now set up two tasks to run independently.
-  xTaskCreatePinnedToCore(
-    TaskDisplay
-    ,  "TaskDisplay"   // A name just for humans
-    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
-    ,  NULL
-    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL 
-    ,  ARDUINO_RUNNING_CORE);
-
-  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
 }
