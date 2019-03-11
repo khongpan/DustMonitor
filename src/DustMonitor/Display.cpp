@@ -1,7 +1,8 @@
 #include "Arduino.h"
 #include "heltec.h"
 #include "DustSensor.h"
-
+ const int buttonPin = 0; 
+int buttonState = 0; 
 
  
 #if CONFIG_FREERTOS_UNICORE
@@ -32,6 +33,8 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
+     buttonState = digitalRead(buttonPin);
+        if (buttonState == HIGH) {
         
         Heltec.display->clear();
      //   sprintf(str,"%d-%02d-%02d",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday);
@@ -53,13 +56,16 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         Heltec.display->drawString(97,47," ug/m3");
         Heltec.display->display();
         vTaskDelay(30000);  // one tick delay (15ms) in between reads for stability
-       
+        }
+        else {
+       Heltec.display->display();
+        }
   }
 }
 
 // the setup function runs once when you press reset or power the board
 void DisplaySetup() {
-
+  pinMode(buttonPin, INPUT);
   Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
   Heltec.display->flipScreenVertically();
   Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
