@@ -2,7 +2,7 @@
 #include "heltec.h"
 #include "DustSensor.h"
  const int buttonPin = 0; 
-int buttonState = LOW; 
+int buttonState = 0; 
 
  
 #if CONFIG_FREERTOS_UNICORE
@@ -34,7 +34,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
   for (;;) // A Task shall never return or exit.
   {
      buttonState = digitalRead(buttonPin);
-        if (buttonState == HIGH) {
+        if (buttonState == LOW) {
         
         Heltec.display->clear();
      //   sprintf(str,"%d-%02d-%02d",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday);
@@ -55,7 +55,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         Heltec.display->setFont(ArialMT_Plain_10);
         Heltec.display->drawString(97,47," ug/m3");
         Heltec.display->display();
-        vTaskDelay(30000);  // one tick delay (15ms) in between reads for stability
+       // vTaskDelay(30000);  // one tick delay (15ms) in between reads for stability
         }
         else {
        Heltec.display->clear();
