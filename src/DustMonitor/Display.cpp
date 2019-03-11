@@ -47,6 +47,7 @@ void DisplaySetup() {
   Heltec.display->clear();
   Heltec.display->drawString(0, 0, "Waiting for \nconnection...");
   Heltec.display->display();
+  Heltec.display->clear();
   // Now set up two tasks to run independently.
   xTaskCreatePinnedToCore(
     TaskDisplay
@@ -61,7 +62,7 @@ void DisplaySetup() {
 }
 void Display(){
 buttonState = digitalRead(buttonPin);
-        if (buttonState == LOW) {
+        if (buttonState == HIGH) {
         
         Heltec.display->clear();
      //   sprintf(str,"%d-%02d-%02d",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday);
