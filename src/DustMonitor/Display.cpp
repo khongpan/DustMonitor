@@ -2,7 +2,7 @@
 #include "heltec.h"
 #include "DustSensor.h"
  const int buttonPin = 0; 
-int buttonState = 0; 
+int buttonState = LOW; 
 
  
 #if CONFIG_FREERTOS_UNICORE
