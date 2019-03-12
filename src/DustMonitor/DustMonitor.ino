@@ -1,27 +1,42 @@
 #include "Blink.h"
 #include "Network.h"
 #include "DustSensor.h"
-#include "Display.h"
+#include "HTTP.h"
+
+//#include "Display.h"
 // the setup function runs once when you press reset or power the board
 
 void setup() {
 
-  // initialize serial communication at 115200 bits per second:
   Serial.begin(115200);
-  DisplaySetup();
-  BlinkSetup();
-//  NetWorkSetup();
-  DustSensorSetup();
-  Display();
+  // initialize serial communication at 115200 bits per second:
+  // DisplaySetup();
+  // BlinkSetup();
+   NetworkSetup();
+//   HTTPSetup();
+//   HTTPConnect();
+  // DustSensorSetup();
+  // Display();
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
+
+
+
+  
+ 
 }
 
-
+int i=0;
 void loop()
 {
-//  Serial.print("aaaa");// Empty. Things are done in Tasks.
-//  vTaskDelay(2000);
-     
+      struct tm tmstruct ;
       
-        
+    delay(1000);
+    tmstruct.tm_year = 0;
+    getLocalTime(&tmstruct, 5000);
+    Serial.printf("\n%d Now is : %d-%02d-%02d %02d:%02d:%02d\n",i,(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday,tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
+    i++;
+  
+
+
+
 }
