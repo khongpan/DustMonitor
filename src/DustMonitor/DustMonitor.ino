@@ -12,7 +12,7 @@ void setup() {
   BlinkSetup();
 //  NetWorkSetup();
   DustSensorSetup();
-  Display();
+ 
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
 }
 
@@ -21,7 +21,7 @@ void loop()
 {
 //  Serial.print("aaaa");// Empty. Things are done in Tasks.
 //  vTaskDelay(2000);
-     
+    
       
         
 }

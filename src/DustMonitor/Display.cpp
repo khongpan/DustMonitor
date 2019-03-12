@@ -1,7 +1,7 @@
 #include "Arduino.h"
 #include "heltec.h"
 #include "DustSensor.h"
- const int buttonPin = 0; 
+const int buttonPin = 0; 
 int buttonState = 0; 
 
  
@@ -19,7 +19,7 @@ String Value2 ;
 void TaskDisplay(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
-
+  buttonState = digitalRead(0);
 /*
   Blink
   Turns on an LED on for one second, then off for one second, repeatedly.
@@ -33,37 +33,8 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
-     
-  }
-}
-
-// the setup function runs once when you press reset or power the board
-void DisplaySetup() {
-  pinMode(buttonPin, INPUT);
-  Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
-  Heltec.display->flipScreenVertically();
-  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
-  Heltec.display->setFont(ArialMT_Plain_16);
-  Heltec.display->clear();
-  Heltec.display->drawString(0, 0, "Waiting for \nconnection...");
-  Heltec.display->display();
-  Heltec.display->clear();
-  // Now set up two tasks to run independently.
-  xTaskCreatePinnedToCore(
-    TaskDisplay
-    ,  "TaskDisplay"   // A name just for humans
-    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
-    ,  NULL
-    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL 
-    ,  ARDUINO_RUNNING_CORE);
-
-  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
-}
-void Display(){
-
-buttonState = digitalRead(buttonPin);
-        if (buttonState == LOW) {
+     if (buttonState == LOW) 
+        {
         
         Heltec.display->clear();
      // sprintf(str,"%d-%02d-%02d",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday);
@@ -86,7 +57,33 @@ buttonState = digitalRead(buttonPin);
         Heltec.display->display();
      // vTaskDelay(30000);  // one tick delay (15ms) in between reads for stability
         }
-        else {
-       Heltec.display->clear();
+        else 
+        {
+        Heltec.display->clear();
         }
+  }
+}
+
+// the setup function runs once when you press reset or power the board
+void DisplaySetup() {
+  pinMode(0, INPUT);
+  Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
+  Heltec.display->flipScreenVertically();
+  Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
+  Heltec.display->setFont(ArialMT_Plain_16);
+  Heltec.display->clear();
+  Heltec.display->drawString(0, 0, "Waiting for \nconnection...");
+  Heltec.display->display();
+  Heltec.display->clear();
+  // Now set up two tasks to run independently.
+  xTaskCreatePinnedToCore(
+    TaskDisplay
+    ,  "TaskDisplay"   // A name just for humans
+    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  NULL
+    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  NULL 
+    ,  ARDUINO_RUNNING_CORE);
+
+  // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
 }
