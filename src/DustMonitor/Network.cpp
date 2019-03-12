@@ -25,7 +25,7 @@ void TaskNetwork(void *pvParameters)  // This is a task.
 // the setup function runs once when you press reset or power the board
 void NetworkSetup() {
     long timezone = 7; 
-    byte daysavetime = 1;
+    byte daysavetime = 0;
 
     Serial.begin(115200);
     // We start by connecting to a WiFi network
