@@ -35,7 +35,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
   {
      if (buttonState == LOW) 
         {
-        
+        Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
         Heltec.display->clear();
      // sprintf(str,"%d-%02d-%02d",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday);
      // Heltec.display->setFont(ArialMT_Plain_10);
@@ -59,7 +59,7 @@ void TaskDisplay(void *pvParameters)  // This is a task.
         }
         else 
         {
-        Heltec.display->clear();
+        Heltec.begin(false /*DisplayEnable Enable*/, true /*LoRa Disable*/, false /*Serial Enable*/);
         }
   }
 }
