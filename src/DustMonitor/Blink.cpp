@@ -1,7 +1,8 @@
 #include "Arduino.h"
 
 #ifndef LED_BUILTIN
-#define LED_BUILTIN 25
+//#define LED_BUILTIN 25
+#define LED_BUILTIN 16
 #endif
 
 #if CONFIG_FREERTOS_UNICORE
@@ -33,9 +34,9 @@ void TaskBlink(void *pvParameters)  // This is a task.
   for (;;) // A Task shall never return or exit.
   {
     digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
+    vTaskDelay(500);  // one tick delay (15ms) in between reads for stability
     digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    vTaskDelay(900);  // one tick delay (15ms) in between reads for stability
+    vTaskDelay(500);  // one tick delay (15ms) in between reads for stability
   }
 }
 
