@@ -11,14 +11,21 @@ void setup() {
   Serial.begin(115200);
 
   BlinkSetup();
+
   //NetworkSetup();
   //DustSensorSetup(); 
   CCS811Setup();
   //HTTPConnect();
+
+
+
+
 }
 
 
 void loop()
 {
+
   //vTaskDelay(2000);
+
 }
