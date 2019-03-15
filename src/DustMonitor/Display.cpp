@@ -19,7 +19,7 @@ String Value2 ;
 void TaskDisplay(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
-  buttonState = digitalRead(0);
+  
 /*
   Blink
   Turns on an LED on for one second, then off for one second, repeatedly.
@@ -33,9 +33,13 @@ void TaskDisplay(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
+     buttonState = digitalRead(0);
+
+    Serial.println(buttonState);
      if (buttonState == LOW) 
         {
-        Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
+          Serial.println(buttonState);
+        //heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
         Heltec.display->clear();
      // sprintf(str,"%d-%02d-%02d",(tmstruct.tm_year)+1900,( tmstruct.tm_mon)+1, tmstruct.tm_mday);
      // Heltec.display->setFont(ArialMT_Plain_10);
@@ -43,31 +47,36 @@ void TaskDisplay(void *pvParameters)  // This is a task.
      // sprintf(str,"%02d:%02d:%02d",tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
      // Heltec.display->drawString(70, 5, str);
         Heltec.display->setFont(ArialMT_Plain_16);
-        Heltec.display->drawString(0, 27,"PM 2.5");
+        Heltec.display->drawString(0, 27,"PM 2.5:");
         Heltec.display->setFont(ArialMT_Plain_24);
         Heltec.display->drawString(56, 18,Value1);
         Heltec.display->setFont(ArialMT_Plain_10);
         Heltec.display->drawString(97, 27," ug/m3");
         Heltec.display->setFont(ArialMT_Plain_16);
-        Heltec.display->drawString(0, 47,"PM 10");
+        Heltec.display->drawString(0, 47,"PM 10:");
         Heltec.display->setFont(ArialMT_Plain_24);
         Heltec.display->drawString(56,42,Value2);
         Heltec.display->setFont(ArialMT_Plain_10);
         Heltec.display->drawString(97,47," ug/m3");
         Heltec.display->display();
-     // vTaskDelay(30000);  // one tick delay (15ms) in between reads for stability
+     vTaskDelay(3000);  // one tick delay (15ms) in between reads for stability
         }
-        else 
+        else if (buttonState == HIGH) 
         {
-        Heltec.begin(false /*DisplayEnable Enable*/, true /*LoRa Disable*/, false /*Serial Enable*/);
+          Serial.println("button UP");
+          
+          Heltec.display->clear();
+          Heltec.display->display();
+    //    Heltec.begin(false /*DisplayEnable Enable*/, true /*LoRa Disable*/, false /*Serial Enable*/);
         }
   }
 }
 
 // the setup function runs once when you press reset or power the board
 void DisplaySetup() {
+  Serial.begin(9600);
   pinMode(0, INPUT);
-  Heltec.begin(true /*DisplayEnable Enable*/, false /*LoRa Disable*/, false /*Serial Enable*/);
+  Heltec.begin(true /*DisplayEnable Enable*/, true /*LoRa Disable*/, false /*Serial Enable*/);
   Heltec.display->flipScreenVertically();
   Heltec.display->setTextAlignment(TEXT_ALIGN_LEFT);
   Heltec.display->setFont(ArialMT_Plain_16);
@@ -75,6 +84,7 @@ void DisplaySetup() {
   Heltec.display->drawString(0, 0, "Waiting for \nconnection...");
   Heltec.display->display();
   Heltec.display->clear();
+  vTaskDelay(3000);
   // Now set up two tasks to run independently.
   xTaskCreatePinnedToCore(
     TaskDisplay
