@@ -616,7 +616,7 @@ void TaskCCS811(void *pvParameters)  // This is a task.
         Serial.print("="); Serial.println( ccs811.errstat_str(errstat) ); 
       }
 
-       vTaskDelay(1);  // one tick delay (15ms) in between reads for stability
+       vTaskDelay(1000);  // one tick delay (15ms) in between reads for stability
     
   }
 }
