@@ -1,6 +1,7 @@
 #include "Blink.h"
 #include "Network.h"
 #include "DustSensor.h"
+#include "CCS811.h"
 
 void HTTPConnect();
 // the setup function runs once when you press reset or power the board
@@ -10,9 +11,10 @@ void setup() {
   Serial.begin(115200);
 
   BlinkSetup();
-  NetworkSetup();
-  DustSensorSetup(); 
-  HTTPConnect();
+  //NetworkSetup();
+  //DustSensorSetup(); 
+  CCS811Setup();
+  //HTTPConnect();
 }
 
 
