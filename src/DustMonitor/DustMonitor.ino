@@ -1,7 +1,8 @@
-#include "Blink.h"
 #include "Network.h"
 #include "DustSensor.h"
 #include "CCS811.h"
+#include "RotaryKey.h"
+#include "Blink.h"
 
 void HTTPConnect();
 // the setup function runs once when you press reset or power the board
@@ -15,6 +16,7 @@ void setup() {
   //NetworkSetup();
   //DustSensorSetup(); 
   CCS811Setup();
+  //RKSetup();
   //HTTPConnect();
 
 
