@@ -1,6 +1,7 @@
 #include "Network.h"
 #include "DustSensor.h"
 #include "CCS811.h"
+#include "HDC1080.h"
 #include "RotaryKey.h"
 #include "Blink.h"
 
@@ -15,7 +16,8 @@ void setup() {
 
   //NetworkSetup();
   //DustSensorSetup(); 
-  CCS811Setup();
+  //CCS811Setup();
+  HDC1080Setup();
   //RKSetup();
   //HTTPConnect();
 

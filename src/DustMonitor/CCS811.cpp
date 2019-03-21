@@ -17,6 +17,15 @@
 #include <Wire.h>
 #include "ccs811.h"
 
+HardwareSerial _serial(0);
+
+#define SCL_PIN (22)
+#define SDA_PIN (21)
+#define WAK_PIN (17)
+#define INT_PIN (03)
+#define RST_PIN (19)
+#define ADD_PIN (23)
+
 
 // begin() and flash() prints errors to help diagnose startup problems.
 // Change these macro's to empty to suppress those prints.
@@ -67,6 +76,12 @@ CCS811::CCS811(int nwake, int slaveaddr) {
   _nwake= nwake;
   _slaveaddr= slaveaddr;
   _i2cdelay_us= 0;
+
+  pinMode(INT_PIN, INPUT);
+  pinMode(RST_PIN, OUTPUT);
+  digitalWrite(RST_PIN,HIGH);
+  pinMode(ADD_PIN, OUTPUT);
+  digitalWrite(ADD_PIN, HIGH);
   wake_init();
 }
 
@@ -539,6 +554,7 @@ void CCS811::wake_init( void ) {
 
 
 void CCS811::wake_up( void) {
+  //if( _nwake>=0 ) pinMode(_nwake, OUTPUT);
   if( _nwake>=0 ) { digitalWrite(_nwake, LOW); delayMicroseconds(CCS811_WAIT_AFTER_WAKE_US);  }
 }
 
@@ -572,7 +588,7 @@ bool CCS811::i2cread(int regaddr, int count, uint8_t * buf) {
 }
 
 
-CCS811 ccs811(23);
+CCS811 ccs811(WAK_PIN);
 
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
@@ -624,13 +640,27 @@ void TaskCCS811(void *pvParameters)  // This is a task.
 
 // the setup function runs once when you press reset or power the board
 void CCS811Setup() {
+  _serial.begin(115200,SERIAL_8N1,2,15);  
+  pinMode(WAK_PIN, OUTPUT);
+  digitalWrite(WAK_PIN,HIGH);
+  pinMode(INT_PIN, INPUT);
+  pinMode(RST_PIN, OUTPUT);
+  digitalWrite(RST_PIN,LOW);
+  pinMode(ADD_PIN, OUTPUT);
+  digitalWrite(ADD_PIN, LOW);
 
+  vTaskDelay(1000);
+  digitalWrite(RST_PIN,HIGH);
+  vTaskDelay(1000);
+  digitalWrite(WAK_PIN,LOW);
   Serial.println("");
   Serial.println("setup: Starting CCS811 basic demo");
   Serial.print("setup: ccs811 lib  version: "); Serial.println(CCS811_VERSION);
 
   // Enable I2C
-  Wire.begin(); 
+  Wire.begin();
+  //Wire.begin(21,22,0);
+  //Wire.begin(5,18,0); 
   
   // Enable CCS811
   ccs811.set_i2cdelay(50); // Needed for ESP8266 because it doesn't handle I2C clock stretch correctly
