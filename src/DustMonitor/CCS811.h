@@ -97,4 +97,5 @@ class CCS811 {
 };
 
 void CCS811Setup();
+extern CCS811 ccs811;
 #endif

@@ -26,5 +26,5 @@ class HDC1080JS{
 
 
 void HDC1080Setup();
-
+extern HDC1080JS tempsensor;
 #endif
