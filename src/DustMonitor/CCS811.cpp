@@ -678,15 +678,13 @@ void CCS811Setup() {
 
   
   // Now set up two tasks to run independently.
-  xTaskCreate(
-    TaskCCS811
-    ,  "TaskCCS811"   // A name just for humans
-    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
-    ,  NULL
-    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL );
+//  xTaskCreate(
+//    TaskCCS811
+//    ,  "TaskCCS811"   // A name just for humans
+//    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
+//    ,  NULL
+//    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+//    ,  NULL );
 
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.
 }
-
-

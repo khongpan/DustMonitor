@@ -32,13 +32,14 @@ void TaskDustSensor(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
+    vTaskDelay(15000);
     hpma115S0.StartParticleMeasurement();
     vTaskDelay(15000);
     if (hpma115S0.ReadParticleMeasurement(&pm2_5, &pm10)) {
         Serial.print("PM 2.5:\t" + String(pm2_5) + " ug/m3\t" );
         Serial.println("\tPM 10:\t" + String(pm10) + " ug/m3" );
     hpma115S0.StopParticleMeasurement();
-    vTaskDelay(45000);  
+    vTaskDelay(30000);  
   }
   }
 }
@@ -48,7 +49,7 @@ void DustSensorRead(int *PM2_5, int *PM10){
 }
 
 void DustSensorSetup() {
-  hpmaSerial.begin(9600,SERIAL_8N1,12,13);
+  hpmaSerial.begin(9600,SERIAL_8N1,4,2);
   // Now set up two tasks to run independently.
   xTaskCreatePinnedToCore(
     TaskDustSensor
