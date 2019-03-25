@@ -673,7 +673,7 @@ void CCS811Setup() {
   Serial.print("setup: application version: "); Serial.println(ccs811.application_version(),HEX);
   
   // Start measuring
-  ok= ccs811.start(CCS811_MODE_1SEC);
+  ok= ccs811.start(CCS811_MODE_10SEC);
   if( !ok ) Serial.println("setup: CCS811 start FAILED");
 
   
