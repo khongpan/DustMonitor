@@ -33,9 +33,11 @@ void HDC1080JS::readTempHumid(){
   Wire.endTransmission();
   vTaskDelay(100);
   Wire.requestFrom(ADDR, 4, true);
+  //temperatureRaw = temperatureRaw << 8 | Wire.read();
+  temperatureRaw = Wire.read();
   temperatureRaw = temperatureRaw << 8 | Wire.read();
-  temperatureRaw = temperatureRaw << 8 | Wire.read();
-  humidityRaw = humidityRaw << 8 | Wire.read();
+  //humidityRaw = humidityRaw << 8 | Wire.read();
+  humidityRaw = Wire.read();
   humidityRaw = humidityRaw << 8 | Wire.read();
 
 }
