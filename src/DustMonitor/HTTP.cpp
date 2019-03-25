@@ -20,6 +20,24 @@ String A = "http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00001
 String C = ",1000,A,";
 String D = ",7,10,";
 uint16_t eco2, etvoc, errstat, raw;
+
+
+void Datetime(String *DATE) {
+  struct tm tmstruct ;
+  char str_date[16];
+  char str_time [16];
+  String  str, str1, S;
+
+  getLocalTime(&tmstruct, 5000);
+  sprintf(str_date, "%d/%02d/%02d", (tmstruct.tm_year) - 100, ( tmstruct.tm_mon) + 1, tmstruct.tm_mday);
+  sprintf(str_time, "%02d:%02d:%02d", tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
+  str = str_date ;
+  str1 = str_time;
+  S = (str + "," + str1);
+  *DATE  =  S ;
+  Serial.println (*DATE);
+}
+
 /*--------------------------------------------------*/
 /*---------------------- Tasks ---------------------*/
 /*--------------------------------------------------*/

@@ -21,7 +21,6 @@ void TaskNetwork(void *pvParameters)  // This is a task.
     if (WiFi.status() != WL_CONNECTED) {
 
       lost++;
-
       if(lost==10) ESP.restart();
 
       Serial.println("Reconnecting to WiFi...");
@@ -76,12 +75,12 @@ void NetworkSetup() {
     vTaskDelay(1000);
     Serial.print(".");
   }
-  Serial.println("WiFi Connected.");
   Serial.print("IP Address: ");
+  Serial.println("WiFi Connected.");
   Serial.println(WiFi.localIP());
   Serial.println("Contacting Time Server");
-
   //configTime(3600*timezone, daysavetime*3600, "time.nist.gov", "0.pool.ntp.org", "1.pool.ntp.org");
+
   configTime(3600 * timezone, daysavetime * 3600, "clock.nectec.or.th", "0.pool.ntp.org", "1.pool.ntp.org");
 
   vTaskDelay(2000);
@@ -101,14 +100,4 @@ void NetworkSetup() {
     ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
     ,  NULL );
 
-}
-void Datetime(String *DATE) {
-  getLocalTime(&tmstruct, 5000);
-  sprintf(str_date, "%d/%02d/%02d", (tmstruct.tm_year) - 100, ( tmstruct.tm_mon) + 1, tmstruct.tm_mday);
-  sprintf(str_time, "%02d:%02d:%02d", tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
-  str = str_date ;
-  str1 = str_time;
-  S = (str + "," + str1);
-  *DATE  =  S ;
-  Serial.println (*DATE);
 }
