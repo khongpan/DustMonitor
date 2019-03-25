@@ -1,11 +1,11 @@
 #include "Arduino.h"
-#include <PMS.h>
+#include "PMS5003.h"
 #define  p   18
 String pmstr1, pmstr2_5, pmstr10;
 int AA,BB;
 HardwareSerial PMSSerial(2);
-PMS pms(PMSSerial);
-PMS::DATA data;
+PMS5003 pms(PMSSerial);
+PMS5003::DATA data;
 struct pm
 {
   //uint16_t pm1_0;

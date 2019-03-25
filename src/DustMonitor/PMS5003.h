@@ -1,9 +1,9 @@
-#ifndef PMS_H
-#define PMS_H
+#ifndef PMS5003_H
+#define PMS5003_H
 
 #include "Stream.h"
 
-class PMS
+class PMS5003
 {
 public:
   static const uint16_t SINGLE_RESPONSE_TIME = 1000;
@@ -24,7 +24,7 @@ public:
     uint16_t PM_AE_UG_10_0;
   };
 
-  PMS(Stream&);
+  PMS5003(Stream&);
   void sleep();
   void wakeUp();
   void activeMode();
@@ -46,8 +46,7 @@ private:
 
   uint8_t _index = 0;
   uint16_t _frameLen;
-  uint16_t _checksum;
-  uint16_t _calculatedChecksum;
+  uint16_t _checksum;  uint16_t _calculatedChecksum;
 
   void loop();
 };

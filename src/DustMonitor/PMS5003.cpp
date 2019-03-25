@@ -1,27 +1,27 @@
 #include "Arduino.h"
-#include "PMS.h"
+#include "PMS5003.h"
 
-PMS::PMS(Stream& stream)
+PMS5003::PMS5003(Stream& stream)
 {
   this->_stream = &stream;
 }
 
 // Standby mode. For low power consumption and prolong the life of the sensor.
-void PMS::sleep()
+void PMS5003::sleep()
 {
   uint8_t command[] = { 0x42, 0x4D, 0xE4, 0x00, 0x00, 0x01, 0x73 };
   _stream->write(command, sizeof(command));
 }
 
 // Operating mode. Stable data should be got at least 30 seconds after the sensor wakeup from the sleep mode because of the fan's performance.
-void PMS::wakeUp()
+void PMS5003::wakeUp()
 {
   uint8_t command[] = { 0x42, 0x4D, 0xE4, 0x00, 0x01, 0x01, 0x74 };
   _stream->write(command, sizeof(command));
 }
 
 // Active mode. Default mode after power up. In this mode sensor would send serial data to the host automatically.
-void PMS::activeMode()
+void PMS5003::activeMode()
 {
   uint8_t command[] = { 0x42, 0x4D, 0xE1, 0x00, 0x01, 0x01, 0x71 };
   _stream->write(command, sizeof(command));
@@ -29,7 +29,7 @@ void PMS::activeMode()
 }
 
 // Passive mode. In this mode sensor would send serial data to the host only for request.
-void PMS::passiveMode()
+void PMS5003::passiveMode()
 {
   uint8_t command[] = { 0x42, 0x4D, 0xE1, 0x00, 0x00, 0x01, 0x70 };
   _stream->write(command, sizeof(command));
@@ -37,7 +37,7 @@ void PMS::passiveMode()
 }
 
 // Request read in Passive Mode.
-void PMS::requestRead()
+void PMS5003::requestRead()
 {
   if (_mode == MODE_PASSIVE)
   {
@@ -47,7 +47,7 @@ void PMS::requestRead()
 }
 
 // Non-blocking function for parse response.
-bool PMS::read(DATA& data)
+bool PMS5003::read(DATA& data)
 {
   _data = &data;
   loop();
@@ -56,7 +56,7 @@ bool PMS::read(DATA& data)
 }
 
 // Blocking function for parse response. Default timeout is 1s.
-bool PMS::readUntil(DATA& data, uint16_t timeout)
+bool PMS5003::readUntil(DATA& data, uint16_t timeout)
 {
   _data = &data;
   uint32_t start = millis();
@@ -69,7 +69,7 @@ bool PMS::readUntil(DATA& data, uint16_t timeout)
   return _status == STATUS_OK;
 }
 
-void PMS::loop()
+void PMS5003::loop()
 {
   _status = STATUS_WAITING;
   if (_stream->available())
