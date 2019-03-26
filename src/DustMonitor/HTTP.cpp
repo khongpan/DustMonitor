@@ -8,7 +8,7 @@
 #include "PMS.h"
 #include "CCS811.h"
 #define USE_SERIAL Serial
- #include "HDC1080.h"
+#include "HDC1080.h"
 //WiFiMulti wifiMulti;
 int V1, V2, PM2_5, PM10, Pm2, Pm1;
 String URL;
@@ -47,7 +47,7 @@ void TaskHTTP(void *pvParameters)  // This is a task.
   (void) pvParameters;
 
   struct tm t;
-
+  int old_eco2 = 400;
 
   for (;;) // A Task shall never return or exit.
   {
@@ -58,19 +58,31 @@ void TaskHTTP(void *pvParameters)  // This is a task.
     if (((t.tm_min % 1 != 0) || (t.tm_sec != 0))) continue;
 
     Datetime(&DATETIME);
-    ccs811.read(&eco2,&etvoc,&errstat,&raw);
+    int cnt = 0;
+    do {
+
+      cnt++;
+      ccs811.read(&eco2, &etvoc, &errstat, &raw);
+      if (errstat != CCS811_ERRSTAT_OK) {
+        eco2 = old_eco2;
+        vTaskDelay(1000);
+      }
+
+    } while ((errstat != CCS811_ERRSTAT_OK )&& (cnt <= 11));
+
+      old_eco2 = eco2;
     DustSensorRead(&V1, &V2);
     PMSValue(&Pm2, &Pm1);
     date_str = DATETIME;
     value1 = V1;
     value2 = V2;
-      tempsensor.readTempHumid();
-      float temp = tempsensor.getTemp();
-      float humid = tempsensor.getRelativeHumidity();
-    URL = String (A)  + String(C) + String (date_str)  + String (D) + int (value1) + "," + int (value2) + "," + int (Pm1) + "," + int(Pm2) 
-    + "," + int (eco2) + "," + int (etvoc) + "," + float (temp)+","+float (humid);
-  //URL ="http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00001,1000,A,19/03/22,12:00:00,7,10,100,200,300,400";
-    
+    tempsensor.readTempHumid();
+    float temp = tempsensor.getTemp();
+    float humid = tempsensor.getRelativeHumidity();
+    URL = String (A)  + String(C) + String (date_str)  + String (D) + int (value1) + "," + int (value2) + "," + int (Pm1) + "," + int(Pm2)
+          + "," + int (eco2) + "," + int (etvoc) + "," + float (temp) + "," + float (humid);
+    //URL ="http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00001,1000,A,19/03/22,12:00:00,7,10,100,200,300,400";
+
 
 
     Serial.println(URL);

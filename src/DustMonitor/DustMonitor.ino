@@ -20,10 +20,6 @@ void setup() {
   HDC1080Setup();
   //RKSetup();
   HTTPSetup();
-
-
-
-
 }
 
 
