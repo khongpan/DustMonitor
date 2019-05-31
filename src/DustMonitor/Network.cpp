@@ -2,41 +2,59 @@
 #include <WiFi.h>
 #include <Time.h>
 #include "config.h"
+#define LED_BUILTIN_1 4
 char str_date[256];
 char str_time [256];
 String  str, str1, S;
 struct tm tmstruct ;
+const int buttonpin = 0;
+int buttonstate = 0; int N ;
+static int Start = 0;
+static int enterKey = 0;
 
-/*--------------------------------------------------*/
-/*---------------------- Tasks ---------------------*/
-/*--------------------------------------------------*/
-
-void TaskNetwork(void *pvParameters)  // This is a task.
+/*********************************Task*********************************/
+void TaskNetwork(void *pvParameters)
 {
   (void) pvParameters;
-  int lost=0;
-  
-  for (;;) // A Task shall never return or exit.
+  int lost = 0;
+  int lostt = 0;
+  int lost_config = 0;
+
+  for (;;)
   {
     if (WiFi.status() != WL_CONNECTED) {
-
       lost++;
-      if(lost==10) ESP.restart();
-
+      if (lost == 10) ESP.restart();
       Serial.println("Reconnecting to WiFi...");
       WiFi.disconnect();
       WiFi.begin();
-    }else if(WiFi.status() == WL_CONNECTED){
-      lost=0;
-      
+    } else if (WiFi.status() == WL_CONNECTED) {
+      lost = 0;
     }
-    
-   vTaskDelay(30000);  
+    buttonstate = digitalRead(buttonpin);
+    if (buttonstate == LOW) {
+      lostt++;
+      Serial.println(lostt);
+    } else lostt = 0;
+    if (lostt > 3000) {
+      Serial.println("Clear....Smartconfig");
+      WiFi.mode(WIFI_AP_STA);
+      WiFi.beginSmartConfig();
+      Serial.println("Waiting for SmartConfig.");
+      while (!WiFi.smartConfigDone())  {
+        digitalWrite(LED_BUILTIN_1, HIGH); 
+       
+      }
+
+      Serial.println("SmartConfig done.");
+      config_set_str("SmartConfig", "yes");
+
+    } WiFi.begin();
+    //vTaskDelay(10000);
+
   }
 }
-
 void NetworkSmartConfig() {
-  
   WiFi.mode(WIFI_AP_STA);
   WiFi.beginSmartConfig();
   Serial.println("Waiting for SmartConfig.");
@@ -46,32 +64,25 @@ void NetworkSmartConfig() {
   }
   Serial.println("");
   Serial.println("SmartConfig done.");
-
-  
 }
-
-// the setup function runs once when you press reset or power the board
 void NetworkSetup() {
- 
+  pinMode(buttonpin, INPUT);
+
   long timezone = 7;
   byte daysavetime = 0;
-  
   Serial.begin(115200);
-  
   String str = config_get_str("SmartConfig", "no");
   if (str == "no") {
 
     NetworkSmartConfig();
     config_set_str("SmartConfig", "yes");
-
   }
   Serial.println("Waiting for WiFi");
   WiFi.begin();
-  int wait=0;
+  int wait = 0;
   while (WiFi.status() != WL_CONNECTED) {
     wait++;
-    if (wait>20) ESP.restart();
-    
+    if (wait > 20) ESP.restart();
     vTaskDelay(1000);
     Serial.print(".");
   }
@@ -80,9 +91,7 @@ void NetworkSetup() {
   Serial.println(WiFi.localIP());
   Serial.println("Contacting Time Server");
   //configTime(3600*timezone, daysavetime*3600, "time.nist.gov", "0.pool.ntp.org", "1.pool.ntp.org");
-
-  configTime(3600 * timezone, daysavetime * 3600, "clock.nectec.or.th", "0.pool.ntp.org", "1.pool.ntp.org");
-
+  configTime(3600 * timezone, daysavetime * 3600, "clock.nectec.or.th", "0.pool.ntp.org", "1.pool.ntp.org");              //Set configTime NTP
   vTaskDelay(2000);
   tmstruct.tm_year = 0;
   Serial.print("OK");
@@ -90,14 +99,12 @@ void NetworkSetup() {
   {
     Serial.print(".");
   }
-
   Serial.printf("\nNow is : %d-%02d-%02d %02d:%02d:%02d\n", (tmstruct.tm_year) + 1900, ( tmstruct.tm_mon) + 1, tmstruct.tm_mday, tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
   xTaskCreate(
     TaskNetwork
-    ,  "TaskNetwork"   // A name just for humans
-    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  "TaskNetwork"
+    ,  1024
     ,  NULL
-    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  2
     ,  NULL );
-
 }

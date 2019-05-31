@@ -1,8 +1,9 @@
 #include "Arduino.h"
-
+#include "WiFi.h"
 #ifndef LED_BUILTIN
 //#define LED_BUILTIN 25
-#define LED_BUILTIN 16
+#define LED_BUILTIN 04
+//#define LED  18
 #endif
 
 #if CONFIG_FREERTOS_UNICORE
@@ -20,13 +21,13 @@ void TaskBlink(void *pvParameters)  // This is a task.
 {
   (void) pvParameters;
 
-/*
-  Blink
-  Turns on an LED on for one second, then off for one second, repeatedly.
-    
-  If you want to know what pin the on-board LED is connected to on your ESP32 model, check
-  the Technical Specs of your board.
-*/
+  /*
+    Blink
+    Turns on an LED on for one second, then off for one second, repeatedly.
+
+    If you want to know what pin the on-board LED is connected to on your ESP32 model, check
+    the Technical Specs of your board.
+  */
 
   // initialize digital LED_BUILTIN on pin 13 as an output.
   pinMode(LED_BUILTIN, OUTPUT);
@@ -34,16 +35,26 @@ void TaskBlink(void *pvParameters)  // This is a task.
 
   for (;;) // A Task shall never return or exit.
   {
-    digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-    vTaskDelay(900);  // one tick delay (15ms) in between reads for stability
-    digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-    vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
-  }
+//        digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+//        vTaskDelay(900);  // one tick delay (15ms) in between reads for stability
+//        digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
+//        vTaskDelay(100);  // one tick delay (15ms) in between reads for stability
+    if ( WiFi.status() != WL_CONNECTED) {
+      digitalWrite(LED_BUILTIN, HIGH);
+      vTaskDelay(100);
+      digitalWrite(LED_BUILTIN, LOW);
+      vTaskDelay(100);
+    } else {
+      digitalWrite(LED_BUILTIN, HIGH);
+      vTaskDelay(100);
+      digitalWrite(LED_BUILTIN, LOW);
+      vTaskDelay(1900);
 }
-
+}
+}
 // the setup function runs once when you press reset or power the board
-void BlinkSetup() {
-  
+void BlinkSetup(){
+
   // Now set up two tasks to run independently.
   xTaskCreatePinnedToCore(
     TaskBlink
@@ -51,7 +62,7 @@ void BlinkSetup() {
     ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
     ,  NULL
     ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-    ,  NULL 
+    ,  NULL
     ,  ARDUINO_RUNNING_CORE);
 
   // Now the task scheduler, which takes over control of scheduling individual tasks, is automatically started.

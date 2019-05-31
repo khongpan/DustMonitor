@@ -52,7 +52,7 @@ float HDC1080JS::getTemp(){
 
 float HDC1080JS::getRelativeHumidity(){
 
-  //(rawHumidity/2^16)*100
+ // (rawHumidity/2^16)*100
   return ( (float)humidityRaw )*100/65536;
 }
 
@@ -77,29 +77,30 @@ void TaskHDC1080(void *pvParameters) {
       tempsensor.readTempHumid();
       float temp = tempsensor.getTemp();
       float humid = tempsensor.getRelativeHumidity();
-    
+      
       Serial.print("T=");
       Serial.print(temp);
       Serial.print("C, RH=");
       Serial.print(humid);
       Serial.println("%");
-      vTaskDelay(1000);
+
+      vTaskDelay(10000);
   } 
  
 }
 
 void HDC1080Setup() {
-  Wire.begin();
+  //Wire.begin();
   //Wire.setClock(400000); //set clock speed for I2C bus to maximum allowed for HDC1080
   //Serial.begin(9600);  // start serial for output
 
   //tempsensor = HDC1080JS();
   tempsensor.config();
-//    xTaskCreate(
-//    TaskHDC1080
-//    ,  "TaskHDC1080"   // A name just for humans
-//    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
-//    ,  NULL
-//    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
-//    ,  NULL );
+    xTaskCreate(
+    TaskHDC1080
+    ,  "TaskHDC1080"   // A name just for humans
+    ,  1024  // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  NULL
+    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  NULL );
 }
