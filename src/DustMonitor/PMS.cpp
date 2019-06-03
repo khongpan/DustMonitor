@@ -87,7 +87,7 @@ void PMSValue(int *Pm2_5, int *Pm10){
 }
 // the setup function runs once when you press reset or power the board
 void PMSSetup() {
-  PMSSerial.begin(9600, SERIAL_8N1, 16, 5);
+  PMSSerial.begin(9600, SERIAL_8N1, 32, 5);
   pinMode(p, OUTPUT);
   //pinMode(RST, OUTPUT);
 

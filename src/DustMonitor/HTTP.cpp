@@ -1,105 +1,147 @@
 #include <Arduino.h>
 #include <WiFi.h>
-//#include <WiFiMulti.h>
 #include <HTTPClient.h>
 #include "DustSensor.h"
-//#include "esp_task_wdt.h"
 #include "Network.h"
 #include "PMS.h"
 #include "CCS811.h"
+#include "SHT31.h"
 #define USE_SERIAL Serial
 #include "HDC1080.h"
-//WiFiMulti wifiMulti;
-int V1, V2, PM2_5, PM10, Pm2, Pm1;
+#include "ThingsBoard.h"
+#include <PubSubClient.h>
+#include <WiFiClient.h>
+#include"Tb.h"
+#include "BlynkSimpleEsp32.h"
+int hpma_value_pm10, hpma_value_pm2_5, pms_value_PM2_5, pms_value_PM10, pms_value_Pm2_5, pms_value_Pm10, hpma_value_PM2_5, hpma_value_PM10;
 String URL;
-String date_str;
-int value1, value2;
-String  time_str, DATETIME ;
-String A = "http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00001";
-//String B = "2";  //เปลี่ยน chanal
-String C = ",1000,A,";
-String D = ",7,10,";
+String date_time_str;
+String   date_time_now ;
+String head_url_str = "http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00002";
+String  url_2_str = ",1000,A,";
+String url_4_str = ",7,10,";
 uint16_t eco2, etvoc, errstat, raw;
-
-
-void Datetime(String *DATE) {
+float temp_value, humid_value;
+void Datetime(String *date) {
   struct tm tmstruct ;
-  char str_date[16];
-  char str_time [16];
-  String  str, str1, S;
+  char str_date_value[16];
+  char str_time_value[16];
+  String  str_date, str_time, str_date_time_value;
 
   getLocalTime(&tmstruct, 5000);
-  sprintf(str_date, "%d/%02d/%02d", (tmstruct.tm_year) - 100, ( tmstruct.tm_mon) + 1, tmstruct.tm_mday);
-  sprintf(str_time, "%02d:%02d:%02d", tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
-  str = str_date ;
-  str1 = str_time;
-  S = (str + "," + str1);
-  *DATE  =  S ;
-  Serial.println (*DATE);
+  sprintf(str_date_value, "%d/%02d/%02d", (tmstruct.tm_year) - 100, ( tmstruct.tm_mon) + 1, tmstruct.tm_mday);
+  sprintf(str_time_value, "%02d:%02d:%02d", tmstruct.tm_hour , tmstruct.tm_min, tmstruct.tm_sec);
+  str_date = str_date_value ;
+  str_time = str_time_value;
+  str_date_time_value = (str_date + "," + str_time);
+  *date  =  str_date_time_value ;
+  Serial.println (*date);
 }
 
-/*--------------------------------------------------*/
-/*---------------------- Tasks ---------------------*/
-/*--------------------------------------------------*/
+extern WiFiClient espClient;
+extern ThingsBoard tb(espClient);
+
 HTTPClient http;
-void TaskHTTP(void *pvParameters)  // This is a task.
+void TaskHTTP(void *pvParameters)
 {
   (void) pvParameters;
 
   struct tm t;
   int old_eco2 = 400;
-
-  for (;;) // A Task shall never return or exit.
+  int old_voc = 10;
+  float temp, humid;
+  int count = 0;
+  for (;;)
   {
-
     vTaskDelay(950);
     getLocalTime(&t, 5000);
 
     if (((t.tm_min % 1 != 0) || (t.tm_sec != 0))) continue;
 
-    Datetime(&DATETIME);
+    Datetime(&date_time_now);
     int cnt = 0;
+    
     do {
-
       cnt++;
       ccs811.read(&eco2, &etvoc, &errstat, &raw);
       if (errstat != CCS811_ERRSTAT_OK) {
         eco2 = old_eco2;
+        etvoc = old_voc;
         vTaskDelay(1000);
       }
-
-    } while ((errstat != CCS811_ERRSTAT_OK )&& (cnt <= 11));
-
-      old_eco2 = eco2;
-    DustSensorRead(&V1, &V2);
-    PMSValue(&Pm2, &Pm1);
-    date_str = DATETIME;
-    value1 = V1;
-    value2 = V2;
+    } while ((errstat != CCS811_ERRSTAT_OK ) && (cnt <= 11));
+    old_eco2 = eco2;
+    old_voc = etvoc;
+    
     tempsensor.readTempHumid();
-    float temp = tempsensor.getTemp();
+    float  temp = tempsensor.getTemp();
     float humid = tempsensor.getRelativeHumidity();
-    URL = String (A)  + String(C) + String (date_str)  + String (D) + int (value1) + "," + int (value2) + "," + int (Pm1) + "," + int(Pm2)
-          + "," + int (eco2) + "," + int (etvoc) + "," + float (temp) + "," + float (humid);
-    //URL ="http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00001,1000,A,19/03/22,12:00:00,7,10,100,200,300,400";
+    float Temp, Humid;
+    if (temp == 125) {
+      tempsensor.readTempHumid();
+      temp = tempsensor.getTemp();
+      if (temp == 125) {
+        count++;
+      } if (count == 4) {
+        temp = tempsensor.getTemp();
+        float Temp = temp;
+      } else count = 0;
+    }
+    if (humid == 100) {
+      tempsensor.readTempHumid();
+      humid = tempsensor.getRelativeHumidity();
+      if (humid == 100) {
+        count++;
+      } if (count == 4) {
+        humid = tempsensor.getRelativeHumidity();
+        float Humid = humid;
+      } else count = 0;
+    }
+    if (temp == 125 ) {
+      temp = Temp ;
+    }
+    if (humid == 100 ) {
+      humid = Humid;
+    }
+    //    while (temp == 125) {
+    //      tempsensor.readTempHumid();
+    //      temp = tempsensor.getTemp();
+    //    }
+    //    while (humid == 100) {
+    //      tempsensor.readTempHumid();
+    //      humid = tempsensor.getRelativeHumidity();
+    //    }
+    Serial.print("T=");
+    Serial.print(temp);
+    Serial.print("C, RH=");
+    Serial.print(humid);
+    Serial.println("%");
 
-
-
+    SHT31Read(&temp_value, &humid_value);
+    DustSensorRead(&hpma_value_PM2_5, &hpma_value_PM10);
+    
+    tb.sendTelemetryFloat("temperature", temp_value);
+    tb.sendTelemetryFloat("humid", humid_value);
+//    tb.sendTelemetryFloat("temperature", temp);
+//    tb.sendTelemetryFloat("humid", humid);
+//    Blynk.virtualWrite(V1, temp_value);
+//    Blynk.virtualWrite(V2, humid_value);
+//    Blynk.virtualWrite(V3, temp);
+//    Blynk.virtualWrite(V4, humid);
+    
+    date_time_str = date_time_now;
+    URL = String (head_url_str)  + String(url_2_str) + String (date_time_str)  + String (url_4_str) + int (hpma_value_PM2_5) + "," + int (hpma_value_PM10) + "," + float (temp) + "," + float(humid)
+          + "," + int (eco2) + "," + int (etvoc) + "," + float (temp_value) + "," + float (humid_value);
+    //URL ="http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00003,1000,A,19/03/22,12:00:00,7,10,100,200,300,400";
     Serial.println(URL);
     Serial.println();
-    //Serial.println(date_str);
-
     if ((WiFi.status() == WL_CONNECTED)) {
-
       USE_SERIAL.print("[HTTP] begin...\n");
       http.begin(URL);
       USE_SERIAL.print("[HTTP] GET...\n");
       int httpCode = http.GET();
-      // USE_SERIAL.print(httpCode);
       if (httpCode > 0) {
-
         USE_SERIAL.printf("[HTTP] GET... code: %d\n", httpCode);
-
         if (httpCode == HTTP_CODE_OK) {
           String payload = http.getString();
           USE_SERIAL.println(payload);
@@ -107,11 +149,9 @@ void TaskHTTP(void *pvParameters)  // This is a task.
       } else {
         USE_SERIAL.printf("[HTTP] GET... failed, error: %s\n", http.errorToString(httpCode).c_str());
       }
-
       http.end();
     }
-
-    // vTaskDelay(300000);
+   
   }
 }
 void HTTPSetup() {
@@ -119,23 +159,16 @@ void HTTPSetup() {
   USE_SERIAL.println();
   USE_SERIAL.println();
   USE_SERIAL.println();
-
   //    for(uint8_t t = 10; t > 0; t--) {
   //        USE_SERIAL.printf("[SETUP] WAIT %d...\n", t);
   //        USE_SERIAL.flush();
   //        vTaskDelay(1000);
-  //        //esp_task_wdt_reset();
-  //    }
-
-  // wifiMulti.addAP("FlyFly", "flyuntildie");
-
+  //   }
   xTaskCreate(
     TaskHTTP
-    ,  "TaskHTTP"   // A name just for humans
-    ,  8192 // This stack size can be checked & adjusted by reading the Stack Highwater
+    ,  "TaskHTTP"
+    ,  8192
     ,  NULL
-    ,  2  // Priority, with 3 (configMAX_PRIORITIES - 1) being the highest, and 0 being the lowest.
+    ,  2
     ,  NULL );
-
-
 }
