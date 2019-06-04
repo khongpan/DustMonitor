@@ -19,7 +19,7 @@ void setup() {
   ConfigSetup();
   BlinkSetup();
   NetworkSetup();
-  //BlynkSetup();
+  BlynkSetup();
   TbSetup();
   DustSensorSetup();
   CCS811Setup();

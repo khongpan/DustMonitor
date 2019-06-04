@@ -8,7 +8,8 @@
 #include"DustSensor.h"
 #include"SHT31.h"
 #include "HDC1080.h"
-#include "BlynkApi.h"
+#include "Blynk.h"
+//#include "Blynk//BlynkApi.h"
 #include "BlynkSimpleEsp32.h"
 
 #if CONFIG_FREERTOS_UNICORE
@@ -36,7 +37,7 @@ int cnt = 0;
 WiFiClient _blynkWifiClient;
 BlynkArduinoClient _blynkTransport(_blynkWifiClient);
 BlynkWifi Blynk(_blynkTransport);
-BlynkApi blynk();
+//BlynkApi blynk();
 BlynkTimer timer;
 
 //BLYNK_WRITE(V1) {
@@ -235,7 +236,7 @@ void BlynkSetup() {
 
 
   const IPAddress server(192, 168, 100, 202);
-  const int httpsPort = 8080;
+  const int httpsPort = 8081;
   //timer.setInterval(10000, Blynk_loop);
 
   Blynk.config(auth, server, httpsPort);
@@ -254,7 +255,7 @@ void BlynkSetup() {
   xTaskCreatePinnedToCore(
     TaskBlynk
     ,  "TaskBlynk"
-    ,  4096
+    ,  8192
     ,  NULL
     ,  2
     ,  NULL

@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <Wire.h>
-#include "ccs811.h"
+#include "CCS811.h"
 
 HardwareSerial _serial(0);
 

@@ -2,11 +2,11 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <WiFiClient.h>
-#include "ThingsBoard.h"
+#include <ThingsBoard.h>
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
 //#define WIFI_AP_NAME        "FlyFly"
 //#define WIFI_PASSWORD       "flyuntildie"
-#define TOKEN               "mZHmel7YqjCy33lG2P3i"
+#define TOKEN               "mushroom1"
 #define THINGSBOARD_SERVER  "192.168.100.202"
 //#define THINGSBOARD_SERVER  "demo.thingsboard.io"
 #define SERIAL_DEBUG_BAUD    115200
@@ -56,7 +56,7 @@ void TaskTb(void *pvParameters)
 
   for (;;)
   {
-    delay(quant);
+    vTaskDelay(quant);
     send_passed += quant;
     if (!subscribed) {
       Serial.println("Subscribing for RPC...");
@@ -79,12 +79,16 @@ void TaskTb(void *pvParameters)
 }
 void TbSetup() {
   
-  client.setServer( THINGSBOARD_SERVER , 8080 );
+  //client.setServer( THINGSBOARD_SERVER , 8080 );
   while (tb.connected() == false) {
+
     Serial.print(".");
-    
+    tb.connect(THINGSBOARD_SERVER, TOKEN);
     vTaskDelay(1000);
   }
+
+  Serial.println("ThingsBoard Connected.");
+  
   xTaskCreatePinnedToCore(
     TaskTb
     ,  "TaskTb"

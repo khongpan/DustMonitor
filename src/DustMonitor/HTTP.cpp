@@ -21,12 +21,12 @@ String URL;
 String date_time_str;
 
 String   date_time_now ;
-String head_url_str = "http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00002";
+String head_url_str = "http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00000";
 //String chanal = "2";  //เปลี่ยน chanal
 String  url_2_str = ",1000,A,";
 String url_4_str = ",7,10,";
 uint16_t eco2, etvoc, errstat, raw;
-float temp_value, humid_value;
+float sht31_temp, sht31_humid;
 
 void Datetime(String *date) {
   struct tm tmstruct ;
@@ -130,23 +130,26 @@ void TaskHTTP(void *pvParameters)
     Serial.print("C, RH=");
     Serial.print(humid);
     Serial.println("%");
+    
 
-    SHT31Read(&temp_value, &humid_value);
+    SHT31Read(&sht31_temp, &sht31_temp);
     DustSensorRead(&hpma_value_PM2_5, &hpma_value_PM10);
     //PMSValue(&pms_value_PM2_5, &pms_value_PM10);
     
-    tb.sendTelemetryFloat("temperature", temp_value);
-    tb.sendTelemetryFloat("humid", humid_value);
+    //tb.sendTelemetryFloat("temperature", sht31_temp);
+    //tb.sendTelemetryFloat("humid", sht31_humid);
     tb.sendTelemetryFloat("temperature", temp);
     tb.sendTelemetryFloat("humid", humid);
-    Blynk.virtualWrite(V1, temp_value);
-    Blynk.virtualWrite(V2, humid_value);
+    //tb.sendTelemetryFloat("temperature", 25);
+    //tb.sendTelemetryFloat("humid", 50);
+    Blynk.virtualWrite(V1, sht31_temp);
+    Blynk.virtualWrite(V2, sht31_humid);
     Blynk.virtualWrite(V3, temp);
     Blynk.virtualWrite(V4, humid);
     
     date_time_str = date_time_now;
     URL = String (head_url_str)  + String(url_2_str) + String (date_time_str)  + String (url_4_str) + int (hpma_value_PM2_5) + "," + int (hpma_value_PM10) + "," + float (temp) + "," + float(humid)
-          + "," + int (eco2) + "," + int (etvoc) + "," + float (temp_value) + "," + float (humid_value);
+          + "," + int (eco2) + "," + int (etvoc) + "," + float (sht31_temp) + "," + float (sht31_humid);
     //URL ="http://agritronics.nstda.or.th/webpost0606/log.php?data1=DUST_A00003,1000,A,19/03/22,12:00:00,7,10,100,200,300,400";
     Serial.println(URL);
     Serial.println();
