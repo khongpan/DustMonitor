@@ -1,3 +1,4 @@
+#include <Arduino.h>
 #include "Network.h"
 #include "DustSensor.h"
 #include "CCS811.h"

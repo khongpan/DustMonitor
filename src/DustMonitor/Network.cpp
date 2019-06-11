@@ -19,7 +19,7 @@ void TaskNetwork(void *pvParameters)
   int lost = 0;
   int lostt = 0;
   int lost_config = 0;
-  //pinMode(buttonpin,INPUT_PULLUP);
+  
   for (;;)
   {
     if (WiFi.status() != WL_CONNECTED) {
@@ -32,6 +32,7 @@ void TaskNetwork(void *pvParameters)
       lost = 0;
     }
     
+    pinMode(buttonpin,INPUT_PULLUP);
     buttonstate = digitalRead(buttonpin);
     if (buttonstate == LOW) {
       lostt++;
