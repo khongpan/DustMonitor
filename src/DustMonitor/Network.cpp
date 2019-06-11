@@ -19,7 +19,7 @@ void TaskNetwork(void *pvParameters)
   int lost = 0;
   int lostt = 0;
   int lost_config = 0;
-
+  //pinMode(buttonpin,INPUT_PULLUP);
   for (;;)
   {
     if (WiFi.status() != WL_CONNECTED) {
@@ -31,13 +31,14 @@ void TaskNetwork(void *pvParameters)
     } else if (WiFi.status() == WL_CONNECTED) {
       lost = 0;
     }
+    
     buttonstate = digitalRead(buttonpin);
     if (buttonstate == LOW) {
       lostt++;
       Serial.println(lostt);
     } else lostt = 0;
-    if (lostt > 3000) {
-      Serial.println("Clear....Smartconfig");
+    if (lostt > 30) {
+      Serial.println("Enter....Smartconfig");
       WiFi.mode(WIFI_AP_STA);
       WiFi.beginSmartConfig();
       Serial.println("Waiting for SmartConfig.");
@@ -48,9 +49,11 @@ void TaskNetwork(void *pvParameters)
 
       Serial.println("SmartConfig done.");
       config_set_str("SmartConfig", "yes");
-
-    } WiFi.begin();
-    //vTaskDelay(10000);
+      WiFi.begin();
+       
+   }
+     
+    vTaskDelay(100);
 
   }
 }
@@ -66,7 +69,7 @@ void NetworkSmartConfig() {
   Serial.println("SmartConfig done.");
 }
 void NetworkSetup() {
-  pinMode(buttonpin, INPUT);
+  pinMode(buttonpin, INPUT_PULLUP);
 
   long timezone = 7;
   byte daysavetime = 0;
