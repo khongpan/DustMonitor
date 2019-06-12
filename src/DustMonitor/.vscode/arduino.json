@@ -1,6 +1,6 @@
 {
-    "port": "COM3",
-    "board": "Heltec-esp32:esp32:wifi_kit_32",
-    "configuration": "PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=40,FlashSize=4M,UploadSpeed=921600,DebugLevel=verbose",
-    "sketch": "DustMonitor.ino"
+    "port": "/dev/ttyUSB0",
+    "board": "esp32:esp32:heltec_wifi_kit_32",
+    "sketch": "DustMonitor.ino",
+    "configuration": "PSRAM=disabled,PartitionScheme=default,CPUFreq=240,FlashMode=qio,FlashFreq=40,FlashSize=4M,UploadSpeed=921600,DebugLevel=none"
 }
